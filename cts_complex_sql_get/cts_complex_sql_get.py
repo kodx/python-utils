@@ -1,19 +1,19 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 # cts_complex_sql_get.py
-#      
+#
 # Copyright 2012 Yegor Bayev (kodx) <kodxxx@gmail.com>
-#      
+#
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU Lesser General Public License as published by
 # the Free Software Foundation; either version 3 of the License, or
 # (at your option) any later version.
-#     
+#
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
-#      
+#
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
@@ -83,14 +83,14 @@ dtEnd = (datetime.strptime(sEnd, '%Y-%m-%d %H:%M:%S') -
 
 # sql request
 sqlquery = """
-SELECT Tbl1.DateInKP AS DateINKP, Tbl1.ValueVariable 
+SELECT Tbl1.DateInKP AS DateINKP, Tbl1.ValueVariable
 FROM ( SELECT * FROM %(sqltable)s_%(dtStartShort)s
        where UIDVariable=%(uidvar)d
        UNION
        SELECT * FROM %(sqltable)s_%(dtEndShort)s
        where UIDVariable=%(uidvar)d
 ) Tbl1
-where DateInKP >= '%(dtStart)s' and 
+where DateInKP >= '%(dtStart)s' and
       DateInKP <  '%(dtEnd)s'
 ORDER BY Tbl1.DateINKP""" % \
 {'uidvar': uidvar,
@@ -107,9 +107,9 @@ def total_seconds(date):
     Calculate seconds in given datetime.timedelta.
     Parameters:
     date - datetime.timedelta
-    
+
     returns - float
-    
+
     This function python 2.7.2 built-in, i was using python 2.6 and
     had to make my own implementation.
     """
@@ -134,13 +134,13 @@ def calc_avg_int(input_list):
         tmpsum += float(row[1]) * secs
         prev_time = row[0]
         prev_val = float(row[1])
-        
+
     tmp = prev_time + timedelta(hours=1)
     cur_hour = datetime(tmp.year, tmp.month, tmp.day, tmp.hour)
     tmpsum += prev_val * total_seconds(cur_hour - prev_time)
     res.append([cur_hour, tmpsum/3600])
 
-    return res    
+    return res
 
 def calc_avg(input_list):
     count = tmpsum = 0
@@ -160,12 +160,12 @@ def calc_avg(input_list):
 
     if (prev_time - cur_hour) < timedelta(hours=1):
         cur_hour = cur_hour+timedelta(hours=1)
-    
+
     res.append([cur_hour, float(tmpsum/count)])
     return res
 
 def read_sql():
-    reslst = [] # result list
+    reslst = []
     try:
         conn = _mssql.connect(server=sqlsrv, user=sqluser, password=sqlpass, \
                               database=sqldb, charset=sqlenc)
@@ -178,7 +178,7 @@ def read_sql():
         print 'connection error number=', e, ', severity=', e.severity
     finally:
         conn.close()
-    
+
     return reslst
 
 def mkcsv(fname, input_list):
@@ -190,7 +190,7 @@ def mkcsv(fname, input_list):
         for row in input_list:
             csvwriter.writerow([row[0].strftime('%Y-%m-%d %H:%M:%S'),
                                 str(row[1]).replace('.',',')])
-        
+
 if __name__ == '__main__':
     sdata = read_sql()
     if not sdata :
@@ -202,7 +202,7 @@ if __name__ == '__main__':
             avgdata = calc_avg(sdata)
         else:
             print 'Error table name selected!'
-    
+
         stmp = sStart.replace(':', '_')
         etmp = sEnd.replace(':', '_')
         mkcsv('full '+uidvarDesc+' '+stmp+' - '+etmp+'.csv', sdata)
